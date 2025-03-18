@@ -10,7 +10,7 @@ WORKFLOWS_FILE = "workflows.jsonl"
 
 class GelState(BaseModel):
     description: str | None = None
-    schema: str | None = None
+    dbschema: str | None = None
     data: str | None = None
 
 
@@ -66,10 +66,25 @@ def list_workflows():
     workflows = load_workflows()
 
     # Add workflow button
-    if st.button("Add New Workflow", key="add_workflow_btn"):
-        st.session_state.page = "add_workflow"
-        st.session_state.editing_workflow = None
-        st.rerun()
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Add New Workflow", key="add_workflow_btn"):
+            st.session_state.page = "add_workflow"
+            st.session_state.editing_workflow = None
+            st.rerun()
+    
+    with col2:
+        # Add download button for exporting workflows.jsonl
+        if os.path.exists(WORKFLOWS_FILE):
+            with open(WORKFLOWS_FILE, "r") as f:
+                file_content = f.read()
+            st.download_button(
+                label="Export Workflows",
+                data=file_content,
+                file_name="workflows.jsonl",
+                mime="application/json",
+                key="export_workflows_btn"
+            )
 
     if not workflows:
         st.info("No workflows found. Add a new workflow to get started.")
@@ -250,7 +265,7 @@ def edit_workflow():
                 st.write("Schema (code):")
                 initial_schema = st.text_area(
                     "",
-                    value=test_case.initial_state.schema
+                    value=test_case.initial_state.dbschema
                     if test_case.initial_state
                     else "",
                     key=f"initial_schema_{i}",
@@ -353,7 +368,7 @@ def edit_workflow():
                 st.write("Schema (code):")
                 outcome_schema = st.text_area(
                     "",
-                    value=test_case.expected_outcome.schema
+                    value=test_case.expected_outcome.dbschema
                     if test_case.expected_outcome
                     else "",
                     key=f"outcome_schema_{i}",
@@ -383,7 +398,7 @@ def edit_workflow():
                     if any([initial_description, initial_schema, initial_data]):
                         workflow.test_cases[i].initial_state = GelState(
                             description=initial_description,
-                            schema=initial_schema,
+                            dbschema=initial_schema,
                             data=initial_data,
                         )
                     else:
@@ -398,7 +413,7 @@ def edit_workflow():
                     if any([outcome_description, outcome_schema, outcome_data]):
                         workflow.test_cases[i].expected_outcome = GelState(
                             description=outcome_description,
-                            schema=outcome_schema,
+                            dbschema=outcome_schema,
                             data=outcome_data,
                         )
                     else:
@@ -564,7 +579,7 @@ def add_test_case():
             prompt=prompt,
             initial_state=GelState(
                 description=initial_description,
-                schema=initial_schema,
+                dbschema=initial_schema,
                 data=initial_data,
             )
             if any([initial_description, initial_schema, initial_data])
@@ -574,7 +589,7 @@ def add_test_case():
             ],
             expected_outcome=GelState(
                 description=outcome_description,
-                schema=outcome_schema,
+                dbschema=outcome_schema,
                 data=outcome_data,
             )
             if any([outcome_description, outcome_schema, outcome_data])
