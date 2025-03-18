@@ -1,11 +1,19 @@
 [project]
-name = "workflow-creator"
+name = "workflows"
 version = "0.1.0"
-description = "A Streamlit GUI for creating and managing workflows"
+description = "Workflows"
+readme = "README.md"
+authors = [
+    { name = "anbuzin", email = "andrey@geldata.com" }
+]
+requires-python = ">=3.13"
 dependencies = [
-    "streamlit>=1.32.0",
+    "streamlit>=1.43.2",
     "pydantic>=2.6.1"
 ]
+
+[project.scripts]
+run_gui = "workflows:main"
 
 [build-system]
 requires = ["hatchling"]
