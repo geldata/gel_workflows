@@ -12,6 +12,7 @@ class GelState(BaseModel):
     description: str | None = None
     dbschema: str | None = None
     data: str | None = None
+    queries: str | None = None
 
 
 class TestCase(BaseModel):
@@ -253,12 +254,13 @@ def edit_workflow():
 
                 # Initial State
                 st.subheader("Initial State")
-                initial_description = st.text_input(
+                initial_description = st.text_area(
                     "Description",
                     value=test_case.initial_state.description
                     if test_case.initial_state
                     else "",
                     key=f"initial_description_{i}",
+                    height=150,
                 )
 
                 # Use monospace for schema
@@ -286,6 +288,21 @@ def edit_workflow():
                     help="Enter data code here",
                     label_visibility="collapsed",
                 )
+                
+                # Use monospace for queries
+                st.write("Queries (code):")
+                initial_queries = st.text_area(
+                    "",
+                    value=test_case.initial_state.queries
+                    if test_case.initial_state and test_case.initial_state.queries
+                    else "",
+                    key=f"initial_queries_{i}",
+                    height=150,
+                    help="Enter queries here",
+                    label_visibility="collapsed",
+                )
+
+                # Apply monospace styling
                 st.markdown(
                     """<style>
                 textarea {
@@ -312,10 +329,11 @@ def edit_workflow():
                     col1, col2, col3, col4 = st.columns([6, 1, 1, 1])
 
                     with col1:
-                        new_step = st.text_input(
+                        new_step = st.text_area(
                             f"Step {step_idx + 1}",
                             value=step,
                             key=f"step_{i}_{step_idx}",
+                            height=100,
                         )
                         if new_step != step:
                             st.session_state[steps_key][step_idx] = new_step
@@ -356,12 +374,13 @@ def edit_workflow():
 
                 # Expected Outcome
                 st.subheader("Expected Outcome")
-                outcome_description = st.text_input(
+                outcome_description = st.text_area(
                     "Description",
                     value=test_case.expected_outcome.description
                     if test_case.expected_outcome
                     else "",
                     key=f"outcome_description_{i}",
+                    height=150,
                 )
 
                 # Use monospace for schema
@@ -389,17 +408,41 @@ def edit_workflow():
                     help="Enter data code here",
                     label_visibility="collapsed",
                 )
+                
+                # Use monospace for queries
+                st.write("Queries (code):")
+                outcome_queries = st.text_area(
+                    "",
+                    value=test_case.expected_outcome.queries
+                    if test_case.expected_outcome and test_case.expected_outcome.queries
+                    else "",
+                    key=f"outcome_queries_{i}",
+                    height=150,
+                    help="Enter queries here",
+                    label_visibility="collapsed",
+                )
+
+                # Apply monospace styling
+                st.markdown(
+                    """<style>
+                textarea {
+                    font-family: monospace !important;
+                }
+                </style>""",
+                    unsafe_allow_html=True,
+                )
 
                 # Save changes to this test case
                 if st.button("Save Test Case Changes", key=f"save_test_case_{i}"):
                     workflow.test_cases[i].prompt = prompt
 
                     # Update initial state
-                    if any([initial_description, initial_schema, initial_data]):
+                    if any([initial_description, initial_schema, initial_data, initial_queries]):
                         workflow.test_cases[i].initial_state = GelState(
                             description=initial_description,
                             dbschema=initial_schema,
                             data=initial_data,
+                            queries=initial_queries,
                         )
                     else:
                         workflow.test_cases[i].initial_state = None
@@ -410,11 +453,12 @@ def edit_workflow():
                     ]
 
                     # Update expected outcome
-                    if any([outcome_description, outcome_schema, outcome_data]):
+                    if any([outcome_description, outcome_schema, outcome_data, outcome_queries]):
                         workflow.test_cases[i].expected_outcome = GelState(
                             description=outcome_description,
                             dbschema=outcome_schema,
                             data=outcome_data,
+                            queries=outcome_queries,
                         )
                     else:
                         workflow.test_cases[i].expected_outcome = None
@@ -464,7 +508,7 @@ def add_test_case():
 
     # Initial State
     st.subheader("Initial State")
-    initial_description = st.text_input("Description", key="initial_description")
+    initial_description = st.text_area("Description", key="initial_description", height=150)
 
     # Use monospace for schema
     st.write("Schema (code):")
@@ -483,6 +527,16 @@ def add_test_case():
         key="initial_data",
         height=250,
         help="Enter data code here",
+        label_visibility="collapsed",
+    )
+    
+    # Use monospace for queries
+    st.write("Queries (code):")
+    initial_queries = st.text_area(
+        "",
+        key="initial_queries",
+        height=150,
+        help="Enter queries here",
         label_visibility="collapsed",
     )
 
@@ -508,8 +562,11 @@ def add_test_case():
         col1, col2, col3, col4 = st.columns([6, 1, 1, 1])
 
         with col1:
-            new_step = st.text_input(
-                f"Step {step_idx + 1}", value=step, key=f"new_step_{step_idx}"
+            new_step = st.text_area(
+                f"Step {step_idx + 1}", 
+                value=step, 
+                key=f"new_step_{step_idx}",
+                height=100,
             )
             if new_step != step:
                 st.session_state.new_test_case_steps[step_idx] = new_step
@@ -550,7 +607,7 @@ def add_test_case():
 
     # Expected Outcome
     st.subheader("Expected Outcome")
-    outcome_description = st.text_input("Description", key="outcome_description")
+    outcome_description = st.text_area("Description", key="outcome_description", height=150)
 
     # Use monospace for schema
     st.write("Schema (code):")
@@ -571,6 +628,16 @@ def add_test_case():
         help="Enter data code here",
         label_visibility="collapsed",
     )
+    
+    # Use monospace for queries
+    st.write("Queries (code):")
+    outcome_queries = st.text_area(
+        "",
+        key="outcome_queries",
+        height=150,
+        help="Enter queries here",
+        label_visibility="collapsed",
+    )
 
     # Save button
     if st.button("Save Test Case"):
@@ -581,8 +648,9 @@ def add_test_case():
                 description=initial_description,
                 dbschema=initial_schema,
                 data=initial_data,
+                queries=initial_queries,
             )
-            if any([initial_description, initial_schema, initial_data])
+            if any([initial_description, initial_schema, initial_data, initial_queries])
             else None,
             expected_steps=[
                 step for step in st.session_state.new_test_case_steps if step
@@ -591,8 +659,9 @@ def add_test_case():
                 description=outcome_description,
                 dbschema=outcome_schema,
                 data=outcome_data,
+                queries=outcome_queries,
             )
-            if any([outcome_description, outcome_schema, outcome_data])
+            if any([outcome_description, outcome_schema, outcome_data, outcome_queries])
             else None,
         )
 
