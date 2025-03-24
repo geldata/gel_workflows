@@ -1,6 +1,6 @@
 import streamlit as st
 
-from common.types import Workflow, Example, CodeExample, StepsExample, Test
+from common.types import Workflow, Example, Test
 
 # File to save workflows
 WORKFLOWS_FILE = "workflows.jsonl"

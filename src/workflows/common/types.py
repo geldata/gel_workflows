@@ -18,18 +18,8 @@ class Example(BaseModel):
     name: str | None = None
     slug: str | None = None
     description: str | None = None
-
-
-class CodeExample(Example):
-    """An example that contains code"""
-
+    instructions: str | None = None
     code: list[CodeSnippet] = Field(default_factory=list)
-
-
-class StepsExample(Example):
-    """An example that contains a list of steps described in natural language"""
-
-    steps: list[str] = Field(default_factory=list)
 
 
 class Test(BaseModel):
