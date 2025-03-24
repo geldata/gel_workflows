@@ -9,23 +9,44 @@ WORKFLOWS_FILE = "workflows.jsonl"
 
 
 class CodeSnippet(BaseModel):
-    url: str
+    """A piece of code. Can be an entire file or a snippet from a file."""
+
+    url: str | None = None
     code: str
-    language: str
+    language: str | None = None
+
 
 class Example(BaseModel):
+    """An example served to the agent via the MCP server to help it complete the workflow."""
+
     name: str
     slug: str
     description: str
 
+
 class CodeExample(Example):
-    code: list[CodeSnippet]
+    """An example that contains code"""
+
+    code: list[CodeSnippet] = Field(default_factory=list)
+
 
 class StepsExample(Example):
-    steps: list[str]
+    """An example that contains a list of steps described in natural language"""
+
+    steps: list[str] = Field(default_factory=list)
+
+
+class Test(BaseModel):
+    """A test case to manually run against the agent"""
+
+    test_prompt: str
+    initial_state: list[CodeSnippet] = Field(default_factory=list)
+    expected_outccome: str | None = None
 
 
 class Workflow(BaseModel):
+    """A workflow that describes implementing an app feature using Gel"""
+
     name: str | None = None
     test_prompt: str | None = None
     initial_state: list[CodeSnippet] = Field(default_factory=list)
@@ -75,7 +96,7 @@ def list_workflows():
             st.session_state.page = "add_workflow"
             st.session_state.editing_workflow = None
             st.rerun()
-    
+
     with col2:
         # Add download button for exporting workflows.jsonl
         if os.path.exists(WORKFLOWS_FILE):
@@ -86,7 +107,7 @@ def list_workflows():
                 data=file_content,
                 file_name="workflows.jsonl",
                 mime="application/json",
-                key="export_workflows_btn"
+                key="export_workflows_btn",
             )
 
     if not workflows:
@@ -290,7 +311,7 @@ def edit_workflow():
                     help="Enter data code here",
                     label_visibility="collapsed",
                 )
-                
+
                 # Use monospace for queries
                 st.write("Queries (code):")
                 initial_queries = st.text_area(
@@ -410,7 +431,7 @@ def edit_workflow():
                     help="Enter data code here",
                     label_visibility="collapsed",
                 )
-                
+
                 # Use monospace for queries
                 st.write("Queries (code):")
                 outcome_queries = st.text_area(
@@ -439,7 +460,14 @@ def edit_workflow():
                     workflow.test_cases[i].prompt = prompt
 
                     # Update initial state
-                    if any([initial_description, initial_schema, initial_data, initial_queries]):
+                    if any(
+                        [
+                            initial_description,
+                            initial_schema,
+                            initial_data,
+                            initial_queries,
+                        ]
+                    ):
                         workflow.test_cases[i].initial_state = GelState(
                             description=initial_description,
                             dbschema=initial_schema,
@@ -455,7 +483,14 @@ def edit_workflow():
                     ]
 
                     # Update expected outcome
-                    if any([outcome_description, outcome_schema, outcome_data, outcome_queries]):
+                    if any(
+                        [
+                            outcome_description,
+                            outcome_schema,
+                            outcome_data,
+                            outcome_queries,
+                        ]
+                    ):
                         workflow.test_cases[i].expected_outcome = GelState(
                             description=outcome_description,
                             dbschema=outcome_schema,
@@ -510,7 +545,9 @@ def add_test_case():
 
     # Initial State
     st.subheader("Initial State")
-    initial_description = st.text_area("Description", key="initial_description", height=150)
+    initial_description = st.text_area(
+        "Description", key="initial_description", height=150
+    )
 
     # Use monospace for schema
     st.write("Schema (code):")
@@ -531,7 +568,7 @@ def add_test_case():
         help="Enter data code here",
         label_visibility="collapsed",
     )
-    
+
     # Use monospace for queries
     st.write("Queries (code):")
     initial_queries = st.text_area(
@@ -565,8 +602,8 @@ def add_test_case():
 
         with col1:
             new_step = st.text_area(
-                f"Step {step_idx + 1}", 
-                value=step, 
+                f"Step {step_idx + 1}",
+                value=step,
                 key=f"new_step_{step_idx}",
                 height=100,
             )
@@ -609,7 +646,9 @@ def add_test_case():
 
     # Expected Outcome
     st.subheader("Expected Outcome")
-    outcome_description = st.text_area("Description", key="outcome_description", height=150)
+    outcome_description = st.text_area(
+        "Description", key="outcome_description", height=150
+    )
 
     # Use monospace for schema
     st.write("Schema (code):")
@@ -630,7 +669,7 @@ def add_test_case():
         help="Enter data code here",
         label_visibility="collapsed",
     )
-    
+
     # Use monospace for queries
     st.write("Queries (code):")
     outcome_queries = st.text_area(
