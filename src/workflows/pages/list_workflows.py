@@ -6,9 +6,13 @@ st.title("List of all workflows")
 
 st.markdown(
     """
-    Some instructions here.
+    From here you can browse, edit and delete existing workflows, and create new ones.
+
+    All changes are reflected in the `workflows.jsonl` file that you can commit to the repo once you're done with the changes.
     """,
 )
+
+st.divider()
 
 if st.button("New workflow", key="new_workflow", icon=":material/add:"):
     st.session_state.edit_workflow = Workflow()
