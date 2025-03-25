@@ -1,24 +1,42 @@
 import streamlit as st
+from common.types import Workflow
 
 
 st.title("List of all workflows")
 
+st.session_state.edit_workflow = None
 
-workflows = ["a", "b", "c"]
+workflows = []
+
+with open(st.session_state.workflows_file, "r") as f:
+    for line in f:
+        workflows.append(Workflow.model_validate_json(line))
+
 
 for i, workflow in enumerate(workflows):
-    with st.container(border=True):
-        col1, col2, col3 = st.columns([0.75, 0.1, 0.15])
-        with col1:
-            st.write("workflow name")
-        with col2:
-            st.button("Edit", key=f"edit_{i}")
-        with col3:
-            st.button("Delete", key=f"detele_{i}")
+    col1, col2, col3 = st.columns([0.86, 0.07, 0.07])
+    with col1:
+        with st.expander(
+            f"{workflow.name or 'Untitled'} ({workflow.id})", icon=":material/code:"
+        ):
+            st.json(workflow.model_dump())
 
-    st.sidebar.write("workflow name")
+    with col2:
+        # def set_edit_workflow(edit_workflow: Workflow):
+        #     st.session_state.edit_workflow = edit_workflow
+        # st.switch_page("pages/edit_workflow.py")
+        # st.button("", icon=":material/edit:", key=f"edit_{i}", on_click=set_edit_workflow, args=[workflow])
+        if st.button("", icon=":material/edit:", key=f"edit_{i}"):
+            st.session_state.edit_workflow = workflow
+            st.switch_page("pages/edit_workflow.py")
+    with col3:
+        st.button("", icon=":material/delete:", key=f"delete_{i}")
 
+    # st.sidebar.page_link("workflow name")
 
+if "edit_workflow" in st.session_state and st.session_state.edit_workflow:
+    print("edit_workflow", st.session_state.edit_workflow)
+    # st.switch_page("pages/edit_workflow.py")
 
 # def load_workflows():
 #     return []

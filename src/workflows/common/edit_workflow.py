@@ -3,14 +3,19 @@ from pathlib import Path
 from common.types import Workflow, Test, Example, CodeSnippet
 
 
-WORKFLOW_FILE = Path("workflow.json")
-WORKFLOW_FILE.touch(exist_ok=True)
-with WORKFLOW_FILE.open("r") as f:
-    content = f.read()
-    if content:
-        st.session_state.edit_workflow = Workflow.model_validate_json(content)
-    else:
-        st.session_state.edit_workflow = Workflow()
+# CURRENT_WORKFLOW_FILE = Path("_app_cache_/workflow.json")
+# CURRENT_WORKFLOW_FILE.parent.mkdir(parents=True, exist_ok=True)
+# CURRENT_WORKFLOW_FILE.touch(exist_ok=True)
+
+# with CURRENT_WORKFLOW_FILE.open("r") as f:
+#     content = f.read()
+#     if content:
+#         st.session_state.edit_workflow = Workflow.model_validate_json(content)
+#     else:
+#         st.session_state.edit_workflow = Workflow()
+
+if "edit_workflow" not in st.session_state or not st.session_state.edit_workflow:
+    st.session_state.edit_workflow = Workflow()
 
 
 st.markdown(
@@ -25,9 +30,9 @@ st.markdown(
 )
 
 
-def save_workflow():
-    with WORKFLOW_FILE.open("w") as f:
-        f.write(st.session_state.edit_workflow.model_dump_json())
+# def save_workflow():
+#     with WORKFLOW_FILE.open("w") as f:
+#         f.write(st.session_state.edit_workflow.model_dump_json())
 
 
 def upsert_test(edit_test: Test):
@@ -60,7 +65,7 @@ def render_list_tests():
                     "", key=f"delete_test_{test.id}", icon=":material/delete:"
                 ):
                     st.session_state.edit_workflow.tests.remove(test)
-                    save_workflow()
+                    # save_workflow()
                     st.rerun()
             with col2:
 
@@ -94,7 +99,7 @@ def render_list_initial_state():
                     icon=":material/delete:",
                 ):
                     st.session_state.edit_test.initial_state.remove(code_snippet)
-                    save_workflow()
+                    # save_workflow()
                     st.rerun()
 
             with col2:
@@ -144,7 +149,7 @@ def render_edit_test():
                 def submit_code_snippet():
                     upsert_test_code_snippet(st.session_state.edit_code_snippet)
                     upsert_test(st.session_state.edit_test)
-                    save_workflow()
+                    # save_workflow()
                     st.session_state.edit_code_snippet = None
 
                 def cancel_code_snippet():
@@ -182,7 +187,7 @@ def render_edit_test():
 
         def submit_test():
             upsert_test(st.session_state.edit_test)
-            save_workflow()
+            # save_workflow()
             st.session_state.edit_test = None
             st.session_state.edit_code_snippet = None
 
@@ -200,12 +205,7 @@ def render_edit_test():
 
 
 def render_tests():
-    st.title("Edit workflow")
-
-    st.session_state.edit_workflow.name = st.text_input("Name")
-
     st.subheader("Tests")
-
     if "edit_test" in st.session_state and st.session_state.edit_test is not None:
         render_edit_test()
     else:
@@ -247,7 +247,7 @@ def render_list_examples():
                     "", key=f"delete_example_{example.id}", icon=":material/delete:"
                 ):
                     st.session_state.edit_workflow.examples.remove(example)
-                    save_workflow()
+                    # save_workflow()
                     st.rerun()
             with col2:
 
@@ -300,7 +300,7 @@ def render_edit_example():
                 def submit_code_snippet():
                     upsert_example_code_snippet(st.session_state.edit_code_snippet)
                     upsert_example(st.session_state.edit_example)
-                    save_workflow()
+                    # save_workflow()
                     st.session_state.edit_code_snippet = None
 
                 def cancel_code_snippet():
@@ -337,7 +337,7 @@ def render_edit_example():
                             icon=":material/delete:",
                         ):
                             st.session_state.edit_example.code.remove(code_snippet)
-                            save_workflow()
+                            # save_workflow()
                             st.rerun()
 
                     with col2:
@@ -369,7 +369,7 @@ def render_edit_example():
 
         def submit_example():
             upsert_example(st.session_state.edit_example)
-            save_workflow()
+            # save_workflow()
             st.session_state.edit_example = None
 
         def cancel_example():
@@ -399,6 +399,30 @@ def render_examples():
         "New example", key="add_example", icon=":material/add:", on_click=add_example
     )
 
+
+st.title("Edit workflow")
+st.session_state.edit_workflow.name = st.text_input("Name")
+st.write(st.session_state.edit_workflow.id)
+
+
+def upsert_workflow():
+    workflows_file = st.session_state.workflows_file
+    with workflows_file.open("r") as f:
+        all_workflows = [Workflow.model_validate_json(line) for line in f]
+    
+    for i, workflow in enumerate(all_workflows):
+        if workflow.id == st.session_state.edit_workflow.id:
+            all_workflows[i] = st.session_state.edit_workflow
+            break
+    else:
+        all_workflows.append(st.session_state.edit_workflow)
+    
+    with workflows_file.open("w") as f:
+        for workflow in all_workflows:
+            f.write(workflow.model_dump_json() + "\n")
+
+
+st.button("Save", icon=":material/save:", on_click=upsert_workflow)
 
 render_tests()
 render_examples()

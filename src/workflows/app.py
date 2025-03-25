@@ -1,18 +1,20 @@
 import streamlit as st
-
+from pathlib import Path
 from common.types import Workflow, Example, Test
 
-# File to save workflows
-WORKFLOWS_FILE = "workflows.jsonl"
+
+WORKFLOWS_FILE = Path("workflows.jsonl").resolve()
+
+st.session_state.workflows_file = WORKFLOWS_FILE
 
 st.set_page_config(
     page_title="Workflow Creator",
-    page_icon="🛠️",
+    page_icon=":material/code:",
 )
 
-entry = st.Page("common/entry.py", title="Instructions", icon=":material/code:")
-list_workflows = st.Page("common/list_workflows.py", title="Workflows", icon=":material/code:")
-edit_workflow = st.Page("common/edit_workflow.py", title="Edit", icon=":material/code:")
+entry = st.Page("pages/entry.py", title="Instructions", icon=":material/code:")
+list_workflows = st.Page("pages/list_workflows.py", title="Workflows", icon=":material/code:")
+edit_workflow = st.Page("pages/edit_workflow.py", title="Edit", icon=":material/code:")
 
 
 def main():
