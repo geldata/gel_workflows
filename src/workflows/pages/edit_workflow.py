@@ -49,7 +49,6 @@ def render_list_tests():
                     "", key=f"delete_test_{test.id}", icon=":material/delete:"
                 ):
                     st.session_state.edit_workflow.tests.remove(test)
-                    # save_workflow()
                     st.rerun()
             with col2:
 
@@ -83,7 +82,6 @@ def render_list_initial_state():
                     icon=":material/delete:",
                 ):
                     st.session_state.edit_test.initial_state.remove(code_snippet)
-                    # save_workflow()
                     st.rerun()
 
             with col2:
@@ -137,7 +135,6 @@ def render_edit_test():
                 def submit_code_snippet():
                     upsert_test_code_snippet(st.session_state.edit_code_snippet)
                     upsert_test(st.session_state.edit_test)
-                    # save_workflow()
                     st.session_state.edit_code_snippet = None
 
                 def cancel_code_snippet():
@@ -177,7 +174,6 @@ def render_edit_test():
 
         def submit_test():
             upsert_test(st.session_state.edit_test)
-            # save_workflow()
             st.session_state.edit_test = None
             st.session_state.edit_code_snippet = None
 
@@ -243,7 +239,6 @@ def render_list_examples():
                     "", key=f"delete_example_{example.id}", icon=":material/delete:"
                 ):
                     st.session_state.edit_workflow.examples.remove(example)
-                    # save_workflow()
                     st.rerun()
             with col2:
 
@@ -317,7 +312,6 @@ def render_edit_example():
                 def submit_code_snippet():
                     upsert_example_code_snippet(st.session_state.edit_code_snippet)
                     upsert_example(st.session_state.edit_example)
-                    # save_workflow()
                     st.session_state.edit_code_snippet = None
 
                 def cancel_code_snippet():
@@ -356,7 +350,6 @@ def render_edit_example():
                             icon=":material/delete:",
                         ):
                             st.session_state.edit_example.code.remove(code_snippet)
-                            # save_workflow()
                             st.rerun()
 
                     with col2:
@@ -388,7 +381,6 @@ def render_edit_example():
 
         def submit_example():
             upsert_example(st.session_state.edit_example)
-            # save_workflow()
             st.session_state.edit_example = None
             st.session_state.edit_code_snippet = None
 
@@ -447,6 +439,8 @@ def upsert_workflow():
     with workflows_file.open("w") as f:
         for workflow in all_workflows:
             f.write(workflow.model_dump_json() + "\n")
+
+    st.toast("Workflow saved!")
 
 
 col1, col2, col3 = st.columns([0.07, 0.15, 0.78], vertical_alignment="center")
