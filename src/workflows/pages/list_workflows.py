@@ -46,21 +46,23 @@ def save_all_workflows(workflows):
             f.write(workflow.model_dump_json() + "\n")
 
 
-for i, workflow in enumerate(workflows):
-    col1, col2, col3 = st.columns([0.86, 0.07, 0.07])
-    with col1:
-        with st.expander(
-            f"{workflow.name or 'Untitled'} ({workflow.id})", icon=":material/code:"
-        ):
-            st.json(workflow.model_dump())
+if workflows:
+    for i, workflow in enumerate(workflows):
+        col1, col2, col3 = st.columns([0.86, 0.07, 0.07])
+        with col1:
+            with st.expander(
+                f"{workflow.name or 'Untitled'} ({workflow.id})", icon=":material/code:"
+            ):
+                st.json(workflow.model_dump())
 
-    with col2:
-        if st.button("", icon=":material/edit:", key=f"edit_{i}"):
-            st.session_state.edit_workflow = workflow
-            st.switch_page("pages/edit_workflow.py")
-    with col3:
-        if st.button("", icon=":material/delete:", key=f"delete_{i}"):
-            del workflows[i]
-            save_all_workflows(workflows)
-            st.rerun()
-
+        with col2:
+            if st.button("", icon=":material/edit:", key=f"edit_{i}"):
+                st.session_state.edit_workflow = workflow
+                st.switch_page("pages/edit_workflow.py")
+        with col3:
+            if st.button("", icon=":material/delete:", key=f"delete_{i}"):
+                del workflows[i]
+                save_all_workflows(workflows)
+                st.rerun()
+else:
+    st.info("No workflows have been added yet.")
