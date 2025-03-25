@@ -14,9 +14,22 @@ st.markdown(
 
 st.divider()
 
-if st.button("New workflow", key="new_workflow", icon=":material/add:"):
-    st.session_state.edit_workflow = Workflow()
-    st.switch_page("pages/edit_workflow.py")
+col1, col2 = st.columns([0.23, 0.77])
+
+with col1:
+    if st.button("New workflow", key="new_workflow", icon=":material/add:"):
+        st.session_state.edit_workflow = Workflow()
+        st.switch_page("pages/edit_workflow.py")
+
+with col2:
+    st.download_button(
+        "Export all",
+        key="export_workflows",
+        icon=":material/download:",
+        data=st.session_state.workflows_file.read_bytes(),
+        file_name="workflows.jsonl",
+        mime="application/jsonl",
+    )
 
 st.session_state.edit_workflow = None
 

@@ -13,8 +13,12 @@ st.set_page_config(
 )
 
 entry = st.Page("pages/entry.py", title="Instructions", icon=":material/question_mark:")
-list_workflows = st.Page("pages/list_workflows.py", title="Workflows", icon=":material/list:")
-edit_workflow = st.Page("pages/edit_workflow.py", title="Editor", icon=":material/brush:")
+list_workflows = st.Page(
+    "pages/list_workflows.py", title="Workflows", icon=":material/list:"
+)
+edit_workflow = st.Page(
+    "pages/edit_workflow.py", title="Editor", icon=":material/brush:"
+)
 
 
 def main():
