@@ -1,6 +1,6 @@
 import streamlit as st
 from pathlib import Path
-from common.types import Workflow, Test, Example, CodeSnippet
+from pages.types import Workflow, Test, Example, CodeSnippet
 
 
 # CURRENT_WORKFLOW_FILE = Path("_app_cache_/workflow.json")

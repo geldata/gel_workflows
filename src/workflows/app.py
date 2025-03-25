@@ -1,6 +1,6 @@
 import streamlit as st
 from pathlib import Path
-from common.types import Workflow, Example, Test
+from pages.types import Workflow, Example, Test
 
 
 WORKFLOWS_FILE = Path("workflows.jsonl").resolve()

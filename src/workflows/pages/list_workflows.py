@@ -1,5 +1,5 @@
 import streamlit as st
-from common.types import Workflow
+from pages.types import Workflow
 
 
 st.title("List of all workflows")
