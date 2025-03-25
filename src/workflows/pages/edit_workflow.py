@@ -3,17 +3,6 @@ from pathlib import Path
 from pages.types import Workflow, Test, Example, CodeSnippet
 
 
-# CURRENT_WORKFLOW_FILE = Path("_app_cache_/workflow.json")
-# CURRENT_WORKFLOW_FILE.parent.mkdir(parents=True, exist_ok=True)
-# CURRENT_WORKFLOW_FILE.touch(exist_ok=True)
-
-# with CURRENT_WORKFLOW_FILE.open("r") as f:
-#     content = f.read()
-#     if content:
-#         st.session_state.edit_workflow = Workflow.model_validate_json(content)
-#     else:
-#         st.session_state.edit_workflow = Workflow()
-
 if "edit_workflow" not in st.session_state or not st.session_state.edit_workflow:
     st.session_state.edit_workflow = Workflow()
 
@@ -28,11 +17,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-
-# def save_workflow():
-#     with WORKFLOW_FILE.open("w") as f:
-#         f.write(st.session_state.edit_workflow.model_dump_json())
 
 
 def upsert_test(edit_test: Test):
@@ -161,6 +145,7 @@ def render_edit_test():
                     st.button(
                         "Save code snippet",
                         icon=":material/save:",
+                        key="save_code_snippet",
                         on_click=submit_code_snippet,
                         use_container_width=True,
                     )
@@ -169,6 +154,7 @@ def render_edit_test():
                     st.button(
                         "Cancel",
                         icon=":material/cancel:",
+                        key="cancel_code_snippet",
                         on_click=cancel_code_snippet,
                         use_container_width=True,
                     )
@@ -198,10 +184,10 @@ def render_edit_test():
         _, col1, col2 = st.columns([0.68, 0.15, 0.17])
 
         with col1:
-            st.button("Save", icon=":material/save:", on_click=submit_test)
+            st.button("Save", icon=":material/save:", key="save_test", on_click=submit_test)
 
         with col2:
-            st.button("Cancel", icon=":material/cancel:", on_click=cancel_test)
+            st.button("Cancel", icon=":material/cancel:", key="cancel_test", on_click=cancel_test)
 
 
 def render_tests():
@@ -312,6 +298,7 @@ def render_edit_example():
                     st.button(
                         "Save code snippet",
                         icon=":material/save:",
+                        key="save_code_snippet",
                         on_click=submit_code_snippet,
                         use_container_width=True,
                     )
@@ -320,6 +307,7 @@ def render_edit_example():
                     st.button(
                         "Cancel",
                         icon=":material/cancel:",
+                        key="cancel_code_snippet",
                         on_click=cancel_code_snippet,
                         use_container_width=True,
                     )
@@ -371,17 +359,19 @@ def render_edit_example():
             upsert_example(st.session_state.edit_example)
             # save_workflow()
             st.session_state.edit_example = None
+            st.session_state.edit_code_snippet = None
 
         def cancel_example():
             st.session_state.edit_example = None
+            st.session_state.edit_code_snippet = None
 
         _, col1, col2 = st.columns([0.68, 0.15, 0.17])
 
         with col1:
-            st.button("Save", icon=":material/save:", on_click=submit_example)
+            st.button("Save", icon=":material/save:", key="save_example", on_click=submit_example)
 
         with col2:
-            st.button("Cancel", icon=":material/cancel:", on_click=cancel_example)
+            st.button("Cancel", icon=":material/cancel:", key="cancel_example", on_click=cancel_example)
 
 
 def render_examples():
@@ -401,28 +391,41 @@ def render_examples():
 
 
 st.title("Edit workflow")
-st.session_state.edit_workflow.name = st.text_input("Name")
-st.write(st.session_state.edit_workflow.id)
 
 
 def upsert_workflow():
     workflows_file = st.session_state.workflows_file
     with workflows_file.open("r") as f:
         all_workflows = [Workflow.model_validate_json(line) for line in f]
-    
+
     for i, workflow in enumerate(all_workflows):
         if workflow.id == st.session_state.edit_workflow.id:
             all_workflows[i] = st.session_state.edit_workflow
             break
     else:
         all_workflows.append(st.session_state.edit_workflow)
-    
+
     with workflows_file.open("w") as f:
         for workflow in all_workflows:
             f.write(workflow.model_dump_json() + "\n")
 
 
-st.button("Save", icon=":material/save:", on_click=upsert_workflow)
+col1, col2 = st.columns([0.15, 0.85], vertical_alignment="center")
 
+with col1:
+    st.button(
+        "Save",
+        icon=":material/save:",
+        key="save_workflow",
+        on_click=upsert_workflow,
+    )
+
+with col2:
+    st.write(f"**Workflow ID**: {st.session_state.edit_workflow.id}")
+
+
+st.session_state.edit_workflow.name = st.text_input(
+    "Name", value=st.session_state.edit_workflow.name
+)
 render_tests()
 render_examples()
