@@ -1,4 +1,6 @@
 import streamlit as st
+from pages.types import Workflow
+
 
 st.markdown(
     """
@@ -21,4 +23,6 @@ st.markdown(
     """
 )
 
-st.sidebar.button("Add New Workflow", icon=":material/add:")
+if st.button("New workflow", icon=":material/add:", key="new_workflow"):
+    st.session_state.edit_workflow = Workflow()
+    st.switch_page("pages/edit_workflow.py")

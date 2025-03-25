@@ -14,7 +14,7 @@ st.set_page_config(
 
 entry = st.Page("pages/entry.py", title="Instructions", icon=":material/code:")
 list_workflows = st.Page("pages/list_workflows.py", title="Workflows", icon=":material/code:")
-edit_workflow = st.Page("pages/edit_workflow.py", title="Edit", icon=":material/code:")
+edit_workflow = st.Page("pages/edit_workflow.py", title="Editor", icon=":material/code:")
 
 
 def main():

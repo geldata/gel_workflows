@@ -4,6 +4,16 @@ from pages.types import Workflow
 
 st.title("List of all workflows")
 
+st.markdown(
+    """
+    Some instructions here.
+    """,
+)
+
+if st.button("New workflow", key="new_workflow", icon=":material/add:"):
+    st.session_state.edit_workflow = Workflow()
+    st.switch_page("pages/edit_workflow.py")
+
 st.session_state.edit_workflow = None
 
 workflows = []
