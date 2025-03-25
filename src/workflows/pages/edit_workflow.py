@@ -440,7 +440,7 @@ def upsert_workflow():
         for workflow in all_workflows:
             f.write(workflow.model_dump_json() + "\n")
 
-    st.toast("Workflow saved!")
+    st.toast("Workflow saved!", icon=":material/check:")
 
 
 col1, col2, col3 = st.columns([0.07, 0.15, 0.78], vertical_alignment="center")
