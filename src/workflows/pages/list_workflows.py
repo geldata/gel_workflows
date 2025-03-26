@@ -34,7 +34,13 @@ with col2:
 with col3:
 
     def show_workflows_path():
-        st.session_state.show_workflows_path = True
+        if (
+            "show_workflows_path" in st.session_state
+            and st.session_state.show_workflows_path
+        ):
+            st.session_state.show_workflows_path = False
+        else:
+            st.session_state.show_workflows_path = True
 
     st.button(
         "",
@@ -44,10 +50,7 @@ with col3:
         on_click=show_workflows_path,
     )
 
-if (
-    "show_workflows_path" in st.session_state
-    and st.session_state.show_workflows_path
-):
+if "show_workflows_path" in st.session_state and st.session_state.show_workflows_path:
     st.code(st.session_state.workflows_file, language="bash")
 
 st.session_state.edit_workflow = None
