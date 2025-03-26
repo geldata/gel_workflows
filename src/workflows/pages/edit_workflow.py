@@ -263,9 +263,6 @@ def render_edit_example():
         st.session_state.edit_example.name = st.text_input(
             "Name", value=st.session_state.edit_example.name, key="edit_example_name"
         )
-        st.session_state.edit_example.slug = st.text_input(
-            "Slug", value=st.session_state.edit_example.slug
-        )
 
         st.write("Description")
         st.caption("""
@@ -274,7 +271,9 @@ def render_edit_example():
         """)
 
         st.session_state.edit_example.description = st.text_area(
-            "Description", value=st.session_state.edit_example.description, label_visibility="hidden",
+            "Description",
+            value=st.session_state.edit_example.description,
+            label_visibility="hidden",
         )
 
         st.write("Instructions")
@@ -283,7 +282,9 @@ def render_edit_example():
             Should look something like: (1) import foo, (2) run bar, (3) prompt the user for baz.
         """)
         st.session_state.edit_example.instructions = st.text_area(
-            "Instructions", value=st.session_state.edit_example.instructions, label_visibility="hidden"
+            "Instructions",
+            value=st.session_state.edit_example.instructions,
+            label_visibility="hidden",
         )
 
         st.write("Code")

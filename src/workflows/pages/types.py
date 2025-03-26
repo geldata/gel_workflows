@@ -16,7 +16,6 @@ class Example(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str | None = None
-    slug: str | None = None
     description: str | None = None
     instructions: str | None = None
     code: list[CodeSnippet] = Field(default_factory=list)
