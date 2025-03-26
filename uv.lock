@@ -607,7 +607,7 @@ wheels = [
 [[package]]
 name = "workflows"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
     { name = "streamlit" },
@@ -615,6 +615,6 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pydantic", specifier = ">=2.10.6" },
+    { name = "pydantic", specifier = ">=2.6.1" },
     { name = "streamlit", specifier = ">=1.43.2" },
 ]

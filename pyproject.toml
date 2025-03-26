@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-run_gui = "workflows:main"
+gui = "workflows:main"
 
 [build-system]
 requires = ["hatchling"]
