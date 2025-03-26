@@ -14,7 +14,7 @@ st.markdown(
 
 st.divider()
 
-col1, col2 = st.columns([0.23, 0.77])
+col1, col2, col3 = st.columns([0.23, 0.07, 0.7])
 
 with col1:
     if st.button("New workflow", key="new_workflow", icon=":material/add:"):
@@ -23,13 +23,32 @@ with col1:
 
 with col2:
     st.download_button(
-        "Export all",
+        "",
         key="export_workflows",
         icon=":material/download:",
         data=st.session_state.workflows_file.read_bytes(),
         file_name="workflows.jsonl",
         mime="application/jsonl",
+        help="Export all workflows to a JSONL file",
     )
+with col3:
+
+    def show_workflows_path():
+        st.session_state.show_workflows_path = True
+
+    st.button(
+        "",
+        icon=":material/folder:",
+        key="show_workflows_file_path",
+        help="Show the path to the workflows.jsonl file",
+        on_click=show_workflows_path,
+    )
+
+if (
+    "show_workflows_path" in st.session_state
+    and st.session_state.show_workflows_path
+):
+    st.code(st.session_state.workflows_file, language="bash")
 
 st.session_state.edit_workflow = None
 
