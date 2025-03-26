@@ -29,7 +29,7 @@ with col2:
         data=st.session_state.workflows_file.read_bytes(),
         file_name="workflows.jsonl",
         mime="application/jsonl",
-        help="Export all workflows to a JSONL file",
+        help="Download workflows.jsonl",
     )
 with col3:
 
@@ -46,7 +46,7 @@ with col3:
         "",
         icon=":material/folder:",
         key="show_workflows_file_path",
-        help="Show the path to the workflows.jsonl file",
+        help="Show path to workflows.jsonl",
         on_click=show_workflows_path,
     )
 
