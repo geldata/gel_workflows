@@ -24,6 +24,7 @@ col1, col2 = st.columns([0.23, 0.77])
 with col1:
     if st.button("New workflow", icon=":material/add:", key="new_workflow"):
         st.session_state.edit_workflow = Workflow()
+        st.session_state.reset_editor = True
         st.switch_page("pages/edit_workflow.py")
 
 with col2:

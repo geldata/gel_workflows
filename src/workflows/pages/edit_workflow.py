@@ -7,6 +7,25 @@ if "edit_workflow" not in st.session_state or not st.session_state.edit_workflow
     st.session_state.edit_workflow = Workflow()
 
 
+if "reset_editor" in st.session_state and st.session_state.reset_editor:
+    st.session_state.edit_test = None
+    st.session_state.edit_example = None
+    st.session_state.edit_code_snippet = None
+    for key in st.session_state:
+        if key.startswith("tmp_"):
+            del st.session_state[key]
+    st.session_state.reset_editor = False
+
+
+def clear_tmp_state(key: str):
+    for tmp_key in st.session_state:
+        if tmp_key.startswith(f"tmp_state_key_{key}"):
+            del st.session_state[tmp_key]
+        if tmp_key.startswith(f"tmp_widget_key_{key}"):
+            del st.session_state[tmp_key]
+
+
+
 st.markdown(
     """
     <style>
@@ -35,6 +54,37 @@ def upsert_test_code_snippet(edit_code_snippet: CodeSnippet):
             break
     else:
         st.session_state.edit_test.initial_state.append(edit_code_snippet)
+
+
+def get_text_input(name: str, value, key: str, label_visibility: str = "visible"):
+    state_key = f"tmp_state_key_{key}"
+    widget_key = f"tmp_widget_key_{key}"
+    return st.text_input(
+        name,
+        value=st.session_state[state_key] if state_key in st.session_state else value,
+        key=widget_key,
+        label_visibility=label_visibility,
+        on_change=save_text(state_key=state_key, widget_key=widget_key),
+    )
+
+
+def get_text_area(name: str, value, key: str, label_visibility: str = "visible"):
+    state_key = f"tmp_state_key_{key}"
+    widget_key = f"tmp_widget_key_{key}"
+    return st.text_area(
+        name,
+        value=st.session_state[state_key] if state_key in st.session_state else value,
+        key=widget_key,
+        on_change=save_text(state_key=state_key, widget_key=widget_key),
+        label_visibility=label_visibility,
+    )
+
+
+def save_text(state_key: str, widget_key: str):
+    def save_text_callback():
+        st.session_state[state_key] = st.session_state[widget_key]
+
+    return save_text_callback
 
 
 def render_list_tests():
@@ -104,11 +154,15 @@ def render_list_initial_state():
 
 def render_edit_test():
     with st.container(border=True):
-        st.session_state.edit_test.test_prompt = st.text_area(
-            "Test prompt", value=st.session_state.edit_test.test_prompt
+        st.session_state.edit_test.test_prompt = get_text_area(
+            "Test prompt",
+            value=st.session_state.edit_test.test_prompt,
+            key="edit_test_test_prompt",
         )
-        st.session_state.edit_test.expected_outcome = st.text_area(
-            "Expected outcome", value=st.session_state.edit_test.expected_outcome
+        st.session_state.edit_test.expected_outcome = get_text_area(
+            "Expected outcome",
+            value=st.session_state.edit_test.expected_outcome,
+            key="edit_test_expected_outcome",
         )
 
         st.write("Initial state")
@@ -122,23 +176,31 @@ def render_edit_test():
             and st.session_state.edit_code_snippet is not None
         ):
             with st.container(border=True):
-                st.session_state.edit_code_snippet.url = st.text_input(
-                    "URL", value=st.session_state.edit_code_snippet.url
+                st.session_state.edit_code_snippet.url = get_text_input(
+                    "URL",
+                    value=st.session_state.edit_code_snippet.url,
+                    key="edit_test_code_snippet_url",
                 )
-                st.session_state.edit_code_snippet.code = st.text_area(
-                    "Code", value=st.session_state.edit_code_snippet.code
+                st.session_state.edit_code_snippet.code = get_text_area(
+                    "Code",
+                    value=st.session_state.edit_code_snippet.code,
+                    key="edit_test_code_snippet_code",
                 )
-                st.session_state.edit_code_snippet.language = st.text_input(
-                    "Language", value=st.session_state.edit_code_snippet.language
+                st.session_state.edit_code_snippet.language = get_text_input(
+                    "Language",
+                    value=st.session_state.edit_code_snippet.language,
+                    key="edit_test_code_snippet_language",
                 )
 
                 def submit_code_snippet():
                     upsert_test_code_snippet(st.session_state.edit_code_snippet)
                     upsert_test(st.session_state.edit_test)
+                    clear_tmp_state(key="edit_test_code_snippet")
                     st.session_state.edit_code_snippet = None
 
                 def cancel_code_snippet():
                     st.session_state.edit_code_snippet = None
+                    clear_tmp_state(key="edit_test_code_snippet")
 
                 col1, col2 = st.columns([0.5, 0.5])
 
@@ -176,10 +238,12 @@ def render_edit_test():
             upsert_test(st.session_state.edit_test)
             st.session_state.edit_test = None
             st.session_state.edit_code_snippet = None
+            clear_tmp_state(key="edit_test")
 
         def cancel_test():
             st.session_state.edit_test = None
             st.session_state.edit_code_snippet = None
+            clear_tmp_state(key="edit_test")
 
         _, col1, col2 = st.columns([0.68, 0.15, 0.17])
 
@@ -260,7 +324,7 @@ def render_list_examples():
 
 def render_edit_example():
     with st.container(border=True):
-        st.session_state.edit_example.name = st.text_input(
+        st.session_state.edit_example.name = get_text_input(
             "Name", value=st.session_state.edit_example.name, key="edit_example_name"
         )
 
@@ -270,9 +334,10 @@ def render_edit_example():
             The agent will use it to figure out if it wants to fetch this example.
         """)
 
-        st.session_state.edit_example.description = st.text_area(
+        st.session_state.edit_example.description = get_text_area(
             "Description",
             value=st.session_state.edit_example.description,
+            key="edit_example_description",
             label_visibility="hidden",
         )
 
@@ -281,9 +346,10 @@ def render_edit_example():
             These are natural language instructions for the agent on how to complete the workflow.
             Should look something like: (1) import foo, (2) run bar, (3) prompt the user for baz.
         """)
-        st.session_state.edit_example.instructions = st.text_area(
+        st.session_state.edit_example.instructions = get_text_area(
             "Instructions",
             value=st.session_state.edit_example.instructions,
+            key="edit_example_instructions",
             label_visibility="hidden",
         )
 
@@ -300,23 +366,31 @@ def render_edit_example():
             and st.session_state.edit_code_snippet is not None
         ):
             with st.container(border=True):
-                st.session_state.edit_code_snippet.url = st.text_input(
-                    "URL", value=st.session_state.edit_code_snippet.url
+                st.session_state.edit_code_snippet.url = get_text_input(
+                    "URL",
+                    value=st.session_state.edit_code_snippet.url,
+                    key="edit_example_code_snippet_url",
                 )
-                st.session_state.edit_code_snippet.code = st.text_area(
-                    "Code", value=st.session_state.edit_code_snippet.code
+                st.session_state.edit_code_snippet.code = get_text_area(
+                    "Code",
+                    value=st.session_state.edit_code_snippet.code,
+                    key="edit_example_code_snippet_code",
                 )
-                st.session_state.edit_code_snippet.language = st.text_input(
-                    "Language", value=st.session_state.edit_code_snippet.language
+                st.session_state.edit_code_snippet.language = get_text_input(
+                    "Language",
+                    value=st.session_state.edit_code_snippet.language,
+                    key="edit_example_code_snippet_language",
                 )
 
                 def submit_code_snippet():
                     upsert_example_code_snippet(st.session_state.edit_code_snippet)
                     upsert_example(st.session_state.edit_example)
+                    clear_tmp_state(key="edit_example_code_snippet")
                     st.session_state.edit_code_snippet = None
 
                 def cancel_code_snippet():
                     st.session_state.edit_code_snippet = None
+                    clear_tmp_state(key="edit_example_code_snippet")
 
                 col1, col2 = st.columns([0.5, 0.5])
 
@@ -384,10 +458,12 @@ def render_edit_example():
             upsert_example(st.session_state.edit_example)
             st.session_state.edit_example = None
             st.session_state.edit_code_snippet = None
+            clear_tmp_state(key="edit_example")
 
         def cancel_example():
             st.session_state.edit_example = None
             st.session_state.edit_code_snippet = None
+            clear_tmp_state(key="edit_example")
 
         _, col1, col2 = st.columns([0.68, 0.15, 0.17])
 
@@ -472,8 +548,8 @@ with col3:
     st.write(f"**Workflow ID**: {st.session_state.edit_workflow.id}")
 
 
-st.session_state.edit_workflow.name = st.text_input(
-    "Name", value=st.session_state.edit_workflow.name
+st.session_state.edit_workflow.name = get_text_input(
+    "Name", value=st.session_state.edit_workflow.name, key="edit_workflow_name"
 )
 
 st.subheader("Tests")

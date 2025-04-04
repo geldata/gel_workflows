@@ -19,6 +19,7 @@ col1, col2, col3 = st.columns([0.23, 0.07, 0.7])
 with col1:
     if st.button("New workflow", key="new_workflow", icon=":material/add:"):
         st.session_state.edit_workflow = Workflow()
+        st.session_state.reset_editor = True
         st.switch_page("pages/edit_workflow.py")
 
 with col2:
@@ -80,6 +81,7 @@ if workflows:
         with col2:
             if st.button("", icon=":material/edit:", key=f"edit_{i}"):
                 st.session_state.edit_workflow = workflow
+                st.session_state.reset_editor = True
                 st.switch_page("pages/edit_workflow.py")
         with col3:
             if st.button("", icon=":material/delete:", key=f"delete_{i}"):
